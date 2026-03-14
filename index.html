@@ -1,209 +1,198 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <title>CV Builder</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-
-    :root {
-      --sb:     400px;
-      --r:      7px;
-      --bg:     #141210;
-      --panel:  #1c1916;
-      --bdr:    #2e2b27;
-      --txt:    #e4e0da;
-      --muted:  #7a756f;
-      --faint:  #3a3630;
-      --inp:    #242018;
-      --acc:    #c0622e;
-      --acc2:   #e07a4a;
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --sb:400px;--r:7px;
+      --bg:#141210;--panel:#1c1916;--bdr:#2e2b27;
+      --txt:#e4e0da;--muted:#7a756f;--faint:#3a3630;
+      --inp:#242018;--acc:#c0622e;--acc2:#e07a4a;
     }
+    html,body{height:100%;overflow:hidden}
+    body{font-family:'Outfit',system-ui,sans-serif;background:var(--bg);color:var(--txt);display:flex}
 
-    html, body { height:100%; overflow:hidden; }
-    body { font-family:'Outfit',system-ui,sans-serif; background:var(--bg); color:var(--txt); display:flex; }
+    /* SIDEBAR */
+    #sidebar{
+      width:var(--sb);min-width:var(--sb);
+      background:var(--panel);border-right:1px solid var(--bdr);
+      display:flex;flex-direction:column;height:100vh;position:relative;
+    }
+    .sbh{padding:22px 26px 16px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+    .sbh-logo{font-family:'Cormorant Garamond',Georgia,serif;font-size:22px;font-weight:700;color:var(--txt)}
+    .sbh-logo em{color:var(--acc2);font-style:normal}
+    .sbh-sub{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin-top:3px}
+    .sbsc{flex:1;overflow-y:auto;padding:16px 24px 110px;scrollbar-width:thin;scrollbar-color:var(--faint) transparent}
+    .sbsc::-webkit-scrollbar{width:4px}
+    .sbsc::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
+    .slbl{
+      font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2px;
+      text-transform:uppercase;color:var(--muted);
+      margin-top:22px;margin-bottom:10px;padding-bottom:7px;border-bottom:1px solid var(--bdr)
+    }
+    .slbl:first-child{margin-top:0}
+    .r2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .fld{margin-bottom:10px}
+    .fld label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px}
+    .fld input,.fld textarea{
+      width:100%;background:var(--inp);border:1px solid var(--faint);border-radius:var(--r);
+      padding:8px 11px;font-family:'Outfit',system-ui,sans-serif;font-size:13px;color:var(--txt);
+      transition:border-color .15s;resize:none;line-height:1.5
+    }
+    .fld input:focus,.fld textarea:focus{outline:none;border-color:var(--acc2)}
+    .fld input::placeholder,.fld textarea::placeholder{color:var(--faint)}
 
-    /* ── SIDEBAR ── */
-    #sidebar {
-      width:var(--sb); min-width:var(--sb);
-      background:var(--panel); border-right:1px solid var(--bdr);
-      display:flex; flex-direction:column; height:100vh; position:relative;
+    /* photo upload */
+    .pbox{
+      display:flex;align-items:center;gap:14px;background:var(--inp);
+      border:2px dashed var(--faint);border-radius:var(--r);
+      padding:12px 14px;cursor:pointer;transition:border-color .15s;margin-bottom:10px
     }
-    .sbh { padding:22px 26px 16px; border-bottom:1px solid var(--bdr); flex-shrink:0; }
-    .sbh-logo { font-family:'Cormorant Garamond',Georgia,serif; font-size:22px; font-weight:700; color:var(--txt); }
-    .sbh-logo em { color:var(--acc2); font-style:normal; }
-    .sbh-sub { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.8px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
-
-    .sbsc { flex:1; overflow-y:auto; padding:16px 24px 110px; scrollbar-width:thin; scrollbar-color:var(--faint) transparent; }
-    .sbsc::-webkit-scrollbar { width:4px; }
-    .sbsc::-webkit-scrollbar-thumb { background:var(--faint); border-radius:4px; }
-
-    .slbl {
-      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px;
-      text-transform:uppercase; color:var(--muted);
-      margin-top:22px; margin-bottom:10px; padding-bottom:7px; border-bottom:1px solid var(--bdr);
+    .pbox:hover{border-color:var(--acc2)}
+    .pav{
+      width:52px;height:52px;border-radius:50%;border:2px solid var(--faint);
+      background:var(--bg);overflow:hidden;flex-shrink:0;
+      display:flex;align-items:center;justify-content:center;font-size:20px
     }
-    .slbl:first-child { margin-top:0; }
-
-    .r2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .fld { margin-bottom:10px; }
-    .fld label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
-    .fld input, .fld textarea {
-      width:100%; background:var(--inp); border:1px solid var(--faint); border-radius:var(--r);
-      padding:8px 11px; font-family:'Outfit',system-ui,sans-serif; font-size:13px; color:var(--txt);
-      transition:border-color .15s; resize:none; line-height:1.5;
+    .pav img{width:100%;height:100%;object-fit:cover;display:none}
+    .pinf .pt{font-size:12px;color:var(--txt);font-weight:500}
+    .pinf .ps{font-size:11px;color:var(--muted);margin-top:2px}
+    #pRm{
+      margin-left:auto;background:none;border:none;color:#c0392b;
+      font-size:18px;cursor:pointer;padding:4px 6px;border-radius:4px;
+      transition:background .15s;display:none
     }
-    .fld input:focus, .fld textarea:focus { outline:none; border-color:var(--acc2); }
-    .fld input::placeholder, .fld textarea::placeholder { color:var(--faint); }
-
-    /* photo */
-    .pbox {
-      display:flex; align-items:center; gap:14px;
-      background:var(--inp); border:2px dashed var(--faint); border-radius:var(--r);
-      padding:12px 14px; cursor:pointer; transition:border-color .15s; margin-bottom:10px;
-    }
-    .pbox:hover { border-color:var(--acc2); }
-    .pav {
-      width:52px; height:52px; border-radius:50%; border:2px solid var(--faint);
-      background:var(--bg); overflow:hidden; flex-shrink:0;
-      display:flex; align-items:center; justify-content:center; font-size:20px;
-    }
-    .pav img { width:100%; height:100%; object-fit:cover; display:none; }
-    .pinf .pt { font-size:12px; color:var(--txt); font-weight:500; }
-    .pinf .ps { font-size:11px; color:var(--muted); margin-top:2px; }
-    #pRm {
-      margin-left:auto; background:none; border:none; color:#c0392b;
-      font-size:18px; cursor:pointer; padding:4px 6px; border-radius:4px;
-      transition:background .15s; display:none;
-    }
-    #pRm:hover { background:rgba(192,57,43,.15); }
-    #pFile { display:none; }
+    #pRm:hover{background:rgba(192,57,43,.15)}
+    #pFile{display:none}
 
     /* cards */
-    .card { background:#201d19; border:1px solid var(--bdr); border-radius:var(--r); padding:12px 13px; margin-bottom:8px; }
-    .ctop { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-    .clbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--acc2); }
-    .brm {
-      background:none; border:1px solid var(--bdr); color:var(--muted);
-      padding:2px 8px; border-radius:4px; font-size:11px; cursor:pointer;
-      font-family:'Outfit',sans-serif; transition:all .15s;
+    .card{background:#201d19;border:1px solid var(--bdr);border-radius:var(--r);padding:12px 13px;margin-bottom:8px}
+    .ctop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+    .clbl{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--acc2)}
+    .brm{
+      background:none;border:1px solid var(--bdr);color:var(--muted);
+      padding:2px 8px;border-radius:4px;font-size:11px;cursor:pointer;
+      font-family:'Outfit',sans-serif;transition:all .15s
     }
-    .brm:hover { border-color:#c0392b; color:#c0392b; }
-    .badd {
-      width:100%; background:var(--inp); border:1px dashed var(--faint); color:var(--muted);
-      padding:9px; border-radius:var(--r); font-size:12px; cursor:pointer;
-      font-family:'Outfit',sans-serif; transition:all .15s; margin-top:2px;
+    .brm:hover{border-color:#c0392b;color:#c0392b}
+    .badd{
+      width:100%;background:var(--inp);border:1px dashed var(--faint);color:var(--muted);
+      padding:9px;border-radius:var(--r);font-size:12px;cursor:pointer;
+      font-family:'Outfit',sans-serif;transition:all .15s;margin-top:2px
     }
-    .badd:hover { border-color:var(--acc2); color:var(--acc2); }
+    .badd:hover{border-color:var(--acc2);color:var(--acc2)}
 
-    .sbft {
-      position:absolute; bottom:0; left:0; width:100%;
-      padding:14px 22px 16px; background:var(--panel); border-top:1px solid var(--bdr);
+    .sbft{
+      position:absolute;bottom:0;left:0;width:100%;
+      padding:14px 22px 16px;background:var(--panel);border-top:1px solid var(--bdr)
     }
-    #btnDl {
-      width:100%; background:var(--acc); color:#fff; border:none;
-      padding:13px; border-radius:var(--r); font-size:14px; font-weight:600;
-      cursor:pointer; font-family:'Outfit',sans-serif; transition:background .15s,transform .1s;
+    #btnDl{
+      width:100%;background:var(--acc);color:#fff;border:none;
+      padding:13px;border-radius:var(--r);font-size:14px;font-weight:600;
+      cursor:pointer;font-family:'Outfit',sans-serif;transition:background .15s,transform .1s
     }
-    #btnDl:hover { background:#a85228; transform:translateY(-1px); }
-    #btnDl:active { transform:translateY(0); }
-    #btnDl:disabled { background:#6b3220; cursor:not-allowed; transform:none; }
+    #btnDl:hover{background:#a85228;transform:translateY(-1px)}
+    #btnDl:active{transform:translateY(0)}
+    #btnDl:disabled{background:#6b3220;cursor:not-allowed;transform:none}
 
-    /* ── PREVIEW ── */
-    #preview {
-      flex:1; background:#0e0c0a; overflow-y:auto;
-      padding:44px 36px 60px; display:flex; justify-content:center; align-items:flex-start;
+    /* PREVIEW */
+    #preview{
+      flex:1;background:#0e0c0a;overflow-y:auto;
+      padding:44px 36px 60px;display:flex;justify-content:center;align-items:flex-start
     }
-    #preview::-webkit-scrollbar { width:6px; }
-    #preview::-webkit-scrollbar-thumb { background:var(--faint); border-radius:4px; }
+    #preview::-webkit-scrollbar{width:6px}
+    #preview::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px}
 
-    /* ── CV preview doc ── */
-    #cvDoc {
-      width:100%; max-width:680px;
-      background:#faf8f5; color:#111;
+    /* CV preview */
+    #cvDoc{
+      width:100%;max-width:680px;
+      background:#faf8f5;color:#111;
       font-family:'Outfit',system-ui,sans-serif;
-      box-shadow:0 24px 80px rgba(0,0,0,.6);
-      border-radius:2px;
+      box-shadow:0 24px 80px rgba(0,0,0,.6);border-radius:2px
     }
-    .cv-hd {
-      background:#111111; padding:36px 44px;
-      display:flex; align-items:center; gap:24px;
-      position:relative; overflow:hidden;
+    .cv-hd{
+      background:#111111;padding:36px 44px;
+      display:flex;align-items:center;gap:24px;
+      position:relative;overflow:hidden
     }
-    .cv-hd::before {
-      content:''; position:absolute; right:-50px; top:-50px;
-      width:220px; height:220px; background:#c0622e; opacity:.08; border-radius:50%;
+    .cv-hd::before{
+      content:'';position:absolute;right:-50px;top:-50px;
+      width:220px;height:220px;background:#c0622e;opacity:.08;border-radius:50%
     }
-    .cv-photo {
-      width:86px; height:86px; border-radius:50%;
-      border:3px solid #e07a4a; overflow:hidden; flex-shrink:0;
-      background:#252218; display:flex; align-items:center; justify-content:center;
-      font-size:28px; position:relative; z-index:1;
+    .cv-photo{
+      width:86px;height:86px;border-radius:50%;
+      border:3px solid #e07a4a;overflow:hidden;flex-shrink:0;
+      background:#252218;display:flex;align-items:center;justify-content:center;
+      font-size:28px;position:relative;z-index:1
     }
-    .cv-photo img { width:100%; height:100%; object-fit:cover; display:none; }
-    .cv-hd-info { flex:1; position:relative; z-index:1; }
-    #cvName { font-family:'Cormorant Garamond',Georgia,serif; font-size:34px; font-weight:700; color:#fff; letter-spacing:-.5px; line-height:1.1; }
-    #cvJobT { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:#e07a4a; margin-top:6px; }
-    #cvCont { display:flex; flex-wrap:wrap; gap:4px 18px; margin-top:14px; }
-    .cvc { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:5px; }
-    .cvc::before { content:''; width:4px; height:4px; background:#e07a4a; border-radius:50%; flex-shrink:0; }
-
-    .cv-body { padding:28px 44px 38px; }
-    .cv-sec { margin-bottom:24px; }
-    .cv-sec:last-child { margin-bottom:0; }
-    .cv-sec-t {
-      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2.5px;
-      text-transform:uppercase; color:#c0622e;
-      display:flex; align-items:center; gap:10px; margin-bottom:14px;
+    .cv-photo img{width:100%;height:100%;object-fit:cover;display:none}
+    .cv-hd-info{flex:1;position:relative;z-index:1}
+    #cvName{font-family:'Cormorant Garamond',Georgia,serif;font-size:34px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1}
+    #cvJobT{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:#e07a4a;margin-top:6px}
+    #cvCont{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:14px}
+    .cvc{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:rgba(255,255,255,.5);display:flex;align-items:center;gap:5px}
+    .cvc::before{content:'';width:4px;height:4px;background:#e07a4a;border-radius:50%;flex-shrink:0}
+    .cv-body{padding:28px 44px 38px}
+    .cv-sec{margin-bottom:24px}
+    .cv-sec:last-child{margin-bottom:0}
+    .cv-sec-t{
+      font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;
+      text-transform:uppercase;color:#c0622e;
+      display:flex;align-items:center;gap:10px;margin-bottom:14px
     }
-    .cv-sec-t::after { content:''; flex:1; height:1px; background:#e0dbd4; }
+    .cv-sec-t::after{content:'';flex:1;height:1px;background:#e0dbd4}
+    .cv-sum{font-size:13px;line-height:1.8;color:#3a3a3a}
+    .cv-ei{padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid #e0dbd4}
+    .cv-ei:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0}
+    .cv-er{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .cv-et{font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;font-weight:700;color:#111;line-height:1.2}
+    .cv-ed{font-family:'JetBrains Mono',monospace;font-size:10px;color:#505050;white-space:nowrap;background:#f2ede6;padding:2px 8px;border-radius:3px;flex-shrink:0;margin-top:3px}
+    .cv-ec{font-size:12px;color:#c0622e;font-weight:500;margin:4px 0 6px}
+    .cv-edesc{font-size:12.5px;line-height:1.7;color:#505050}
+    .cv-edi{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid #e0dbd4}
+    .cv-edi:first-child{padding-top:0}
+    .cv-edi:last-child{border-bottom:none;padding-bottom:0}
+    .cv-edeg{font-size:13px;font-weight:600;color:#111;line-height:1.3}
+    .cv-esch{font-size:12px;color:#505050;margin-top:2px}
+    .cv-eyr{font-family:'JetBrains Mono',monospace;font-size:10px;color:#909090;white-space:nowrap;flex-shrink:0;margin-top:3px}
+    .cv-sks{display:flex;flex-wrap:wrap;gap:8px}
+    .cv-sk{font-size:12px;color:#111;background:#f2ede6;border:1px solid #e0dbd4;padding:4px 14px;border-radius:20px;display:flex;align-items:center;gap:6px}
+    .cv-sk::before{content:'';width:5px;height:5px;background:#c0622e;border-radius:50%;flex-shrink:0}
 
-    .cv-sum { font-size:13px; line-height:1.8; color:#3a3a3a; }
-
-    .cv-ei { padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid #e0dbd4; }
-    .cv-ei:last-child { border-bottom:none; padding-bottom:0; margin-bottom:0; }
-    .cv-er { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
-    .cv-et { font-family:'Cormorant Garamond',Georgia,serif; font-size:16px; font-weight:700; color:#111; line-height:1.2; }
-    .cv-ed { font-family:'JetBrains Mono',monospace; font-size:10px; color:#505050; white-space:nowrap; background:#f2ede6; padding:2px 8px; border-radius:3px; flex-shrink:0; margin-top:3px; }
-    .cv-ec { font-size:12px; color:#c0622e; font-weight:500; margin:4px 0 6px; }
-    .cv-edesc { font-size:12.5px; line-height:1.7; color:#505050; }
-
-    .cv-edi { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:10px 0; border-bottom:1px solid #e0dbd4; }
-    .cv-edi:first-child { padding-top:0; }
-    .cv-edi:last-child { border-bottom:none; padding-bottom:0; }
-    .cv-edeg { font-size:13px; font-weight:600; color:#111; line-height:1.3; }
-    .cv-esch { font-size:12px; color:#505050; margin-top:2px; }
-    .cv-eyr  { font-family:'JetBrains Mono',monospace; font-size:10px; color:#909090; white-space:nowrap; flex-shrink:0; margin-top:3px; }
-
-    .cv-sks { display:flex; flex-wrap:wrap; gap:8px; }
-    .cv-sk { font-size:12px; color:#111; background:#f2ede6; border:1px solid #e0dbd4; padding:4px 14px; border-radius:20px; display:flex; align-items:center; gap:6px; }
-    .cv-sk::before { content:''; width:5px; height:5px; background:#c0622e; border-radius:50%; flex-shrink:0; }
+    /* PDF generation overlay */
+    #genOverlay{
+      display:none;position:fixed;inset:0;
+      background:rgba(10,8,6,.92);z-index:99999;
+      flex-direction:column;align-items:center;justify-content:center;gap:16px
+    }
+    #genOverlay.active{display:flex}
+    .gen-spin{
+      width:40px;height:40px;border-radius:50%;
+      border:3px solid #3a3630;border-top-color:#c0622e;
+      animation:spin .8s linear infinite
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .gen-txt{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1.5px;color:#7a756f;text-transform:uppercase}
 
     /* toast */
-    #toast {
-      position:fixed; bottom:28px; left:50%;
+    #toast{
+      position:fixed;bottom:28px;left:50%;
       transform:translateX(-50%) translateY(16px);
-      background:#222; color:#eee; padding:10px 22px; border-radius:30px;
-      font-size:13px; font-family:'Outfit',sans-serif;
-      opacity:0; transition:opacity .3s,transform .3s;
-      pointer-events:none; z-index:9999; white-space:nowrap;
+      background:#222;color:#eee;padding:10px 22px;border-radius:30px;
+      font-size:13px;font-family:'Outfit',sans-serif;
+      opacity:0;transition:opacity .3s,transform .3s;
+      pointer-events:none;z-index:100000;white-space:nowrap
     }
-    #toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
-
-    /* PDF render container — positioned off-screen but VISIBLE so html2canvas works */
-    #pdfMount {
-      position:fixed;
-      top:0; left:-9999px;
-      width:794px;
-      background:transparent;
-      z-index:9998;
-    }
+    #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   </style>
 </head>
 <body>
@@ -215,25 +204,24 @@
     <div class="sbh-sub">Professional Resume Creator</div>
   </div>
   <div class="sbsc">
-
     <div class="slbl">Profile Photo</div>
     <div class="pbox" id="pBox" onclick="document.getElementById('pFile').click()">
-      <div class="pav" id="pAv"><span id="pEmoji">👤</span><img id="pThumb" alt="" /></div>
-      <div class="pinf"><div class="pt">Upload Photo</div><div class="ps">JPG / PNG — shown in CV header</div></div>
+      <div class="pav" id="pAv"><span id="pEmoji">👤</span><img id="pThumb" alt=""/></div>
+      <div class="pinf"><div class="pt">Upload Photo</div><div class="ps">JPG / PNG — shown in header</div></div>
       <button id="pRm" onclick="rmPhoto(event)">✕</button>
     </div>
-    <input type="file" id="pFile" accept="image/png,image/jpeg,image/webp" />
+    <input type="file" id="pFile" accept="image/png,image/jpeg,image/webp"/>
 
     <div class="slbl">Personal Information</div>
-    <div class="fld"><label>Full Name</label><input id="fName" type="text" placeholder="e.g. John Smith" /></div>
-    <div class="fld"><label>Job Title</label><input id="fTitle" type="text" placeholder="e.g. Software Engineer" /></div>
+    <div class="fld"><label>Full Name</label><input id="fName" type="text" placeholder="e.g. John Smith"/></div>
+    <div class="fld"><label>Job Title</label><input id="fTitle" type="text" placeholder="e.g. Software Engineer"/></div>
     <div class="r2">
-      <div class="fld"><label>Email</label><input id="fEmail" type="email" placeholder="you@email.com" /></div>
-      <div class="fld"><label>Phone</label><input id="fPhone" type="tel" placeholder="+1 555 0100" /></div>
+      <div class="fld"><label>Email</label><input id="fEmail" type="email" placeholder="you@email.com"/></div>
+      <div class="fld"><label>Phone</label><input id="fPhone" type="tel" placeholder="+1 555 0100"/></div>
     </div>
     <div class="r2">
-      <div class="fld"><label>Location</label><input id="fLoc" type="text" placeholder="City, Country" /></div>
-      <div class="fld"><label>LinkedIn / Website</label><input id="fWeb" type="text" placeholder="linkedin.com/in/you" /></div>
+      <div class="fld"><label>Location</label><input id="fLoc" type="text" placeholder="City, Country"/></div>
+      <div class="fld"><label>LinkedIn / Website</label><input id="fWeb" type="text" placeholder="linkedin.com/in/you"/></div>
     </div>
 
     <div class="slbl">Professional Summary</div>
@@ -260,7 +248,7 @@
 <main id="preview">
   <div id="cvDoc">
     <div class="cv-hd">
-      <div class="cv-photo" id="cvPhoto"><span id="cvPE">👤</span><img id="cvPI" alt="" /></div>
+      <div class="cv-photo" id="cvPhoto"><span id="cvPE">👤</span><img id="cvPI" alt=""/></div>
       <div class="cv-hd-info">
         <div id="cvName">Your Name</div>
         <div id="cvJobT">Your Job Title</div>
@@ -276,8 +264,11 @@
   </div>
 </main>
 
-<!-- PDF mount — off-screen but NOT hidden so html2canvas can capture it -->
-<div id="pdfMount"></div>
+<!-- PDF generation overlay (shown during render so user doesn't see the clone) -->
+<div id="genOverlay">
+  <div class="gen-spin"></div>
+  <div class="gen-txt">Building PDF…</div>
+</div>
 
 <div id="toast"></div>
 
@@ -285,10 +276,10 @@
 (function(){
 'use strict';
 
-let ei=0, di=0, si=0, photoSrc=null;
+let ei=0,di=0,si=0,photoSrc=null;
 
 /* ══ PHOTO ══ */
-document.getElementById('pFile').addEventListener('change', function(){
+document.getElementById('pFile').addEventListener('change',function(){
   const file=this.files[0]; if(!file) return;
   const r=new FileReader();
   r.onload=function(e){
@@ -302,8 +293,7 @@ document.getElementById('pFile').addEventListener('change', function(){
   r.readAsDataURL(file);
 });
 window.rmPhoto=function(e){
-  e.stopPropagation();
-  photoSrc=null;
+  e.stopPropagation(); photoSrc=null;
   document.getElementById('pEmoji').style.display='';
   const t=document.getElementById('pThumb'); t.src=''; t.style.display='none';
   document.getElementById('pRm').style.display='none';
@@ -312,10 +302,9 @@ window.rmPhoto=function(e){
   document.getElementById('pFile').value='';
 };
 
-/* ══ ADD ENTRIES ══ */
+/* ══ ENTRIES ══ */
 window.addExp=function(){
-  ei++;
-  const i=ei;
+  ei++;const i=ei;
   document.getElementById('expList').insertAdjacentHTML('beforeend',`
     <div class="card" data-exp="${i}">
       <div class="ctop"><span class="clbl">EXPERIENCE</span><button class="brm" onclick="delCard('exp','${i}')">Remove</button></div>
@@ -326,25 +315,23 @@ window.addExp=function(){
       <div class="fld"><label>Duration</label><input type="text" class="xd" placeholder="Jan 2022 – Present"/></div>
       <div class="fld"><label>Description</label><textarea class="xdesc" rows="3" placeholder="Key responsibilities and achievements…"></textarea></div>
     </div>`);
-  rebind(); render();
+  rebind();render();
 };
 window.addEdu=function(){
-  di++;
-  const i=di;
+  di++;const i=di;
   document.getElementById('eduList').insertAdjacentHTML('beforeend',`
     <div class="card" data-edu="${i}">
       <div class="ctop"><span class="clbl">EDUCATION</span><button class="brm" onclick="delCard('edu','${i}')">Remove</button></div>
       <div class="r2">
-        <div class="fld"><label>Degree / Qualification</label><input type="text" class="dd" placeholder="B.Sc. Computer Science"/></div>
+        <div class="fld"><label>Degree</label><input type="text" class="dd" placeholder="B.Sc. Computer Science"/></div>
         <div class="fld"><label>Year</label><input type="text" class="dy" placeholder="2016 – 2020"/></div>
       </div>
       <div class="fld"><label>Institution</label><input type="text" class="ds" placeholder="University Name"/></div>
     </div>`);
-  rebind(); render();
+  rebind();render();
 };
 window.addSkl=function(){
-  si++;
-  const i=si;
+  si++;const i=si;
   document.getElementById('sklList').insertAdjacentHTML('beforeend',`
     <div class="card" data-skl="${i}" style="padding:8px 12px;">
       <div style="display:flex;align-items:center;gap:8px;">
@@ -352,242 +339,231 @@ window.addSkl=function(){
         <button class="brm" onclick="delCard('skl','${i}')">✕</button>
       </div>
     </div>`);
-  rebind(); render();
+  rebind();render();
 };
 window.delCard=function(t,i){
-  const el=document.querySelector(`[data-${t}="${i}"]`);
-  if(el) el.remove(); render();
+  const el=document.querySelector(`[data-${t}="${i}"]`); if(el) el.remove(); render();
 };
 
 /* ══ BIND ══ */
 function rebind(){
   document.querySelectorAll('#sidebar input,#sidebar textarea').forEach(el=>{
-    el.removeEventListener('input',render);
-    el.addEventListener('input',render);
+    el.removeEventListener('input',render); el.addEventListener('input',render);
   });
 }
 
 /* ══ HELPERS ══ */
-function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function v(id){const el=document.getElementById(id);return el?el.value.trim():''}
 
-/* ══ COLLECT DATA ══ */
+/* ══ COLLECT ALL DATA ══ */
 function getData(){
-  const name   = v('fName')  || 'Your Name';
-  const title  = v('fTitle') || 'Your Job Title';
-  const email  = v('fEmail');
-  const phone  = v('fPhone');
-  const loc    = v('fLoc');
-  const web    = v('fWeb');
-  const sum    = v('fSum');
-
-  let expArr=[];
+  const name  = v('fName') ||'Your Name';
+  const title = v('fTitle')||'Your Job Title';
+  const email = v('fEmail'), phone=v('fPhone'), loc=v('fLoc'), web=v('fWeb');
+  const sum   = v('fSum');
+  let expArr=[],eduArr=[],sklArr=[];
   document.querySelectorAll('[data-exp]').forEach(c=>{
-    const t=c.querySelector('.xt').value.trim();
-    const co=c.querySelector('.xc').value.trim();
-    const d=c.querySelector('.xd').value.trim();
-    const desc=c.querySelector('.xdesc').value.trim();
+    const t=c.querySelector('.xt').value.trim(), co=c.querySelector('.xc').value.trim(),
+          d=c.querySelector('.xd').value.trim(),  desc=c.querySelector('.xdesc').value.trim();
     if(t||co) expArr.push({t,co,d,desc});
   });
-
-  let eduArr=[];
   document.querySelectorAll('[data-edu]').forEach(c=>{
-    const deg=c.querySelector('.dd').value.trim();
-    const sch=c.querySelector('.ds').value.trim();
-    const yr =c.querySelector('.dy').value.trim();
+    const deg=c.querySelector('.dd').value.trim(), sch=c.querySelector('.ds').value.trim(),
+          yr =c.querySelector('.dy').value.trim();
     if(deg||sch) eduArr.push({deg,sch,yr});
   });
-
-  let sklArr=[];
-  document.querySelectorAll('[data-skl] .sn').forEach(inp=>{
-    const s=inp.value.trim(); if(s) sklArr.push(s);
-  });
-
+  document.querySelectorAll('[data-skl] .sn').forEach(inp=>{const s=inp.value.trim();if(s)sklArr.push(s);});
   return {name,title,email,phone,loc,web,sum,expArr,eduArr,sklArr};
 }
 
-/* ══ RENDER PREVIEW ══ */
+/* ══ RENDER LIVE PREVIEW ══ */
 function render(){
   const d=getData();
-  document.getElementById('cvName').textContent  = d.name;
-  document.getElementById('cvJobT').textContent  = d.title;
-  document.getElementById('cvCont').innerHTML    = [d.email,d.phone,d.loc,d.web].filter(Boolean)
+  document.getElementById('cvName').textContent=d.name;
+  document.getElementById('cvJobT').textContent=d.title;
+  document.getElementById('cvCont').innerHTML=[d.email,d.phone,d.loc,d.web].filter(Boolean)
     .map(c=>`<span class="cvc">${esc(c)}</span>`).join('');
-
-  const pi=document.getElementById('cvPI'), pe=document.getElementById('cvPE');
+  const pi=document.getElementById('cvPI'),pe=document.getElementById('cvPE');
   if(photoSrc){pe.style.display='none';pi.src=photoSrc;pi.style.display='block';}
   else{pe.style.display='';pi.style.display='none';}
-
   const ss=document.getElementById('secSum');
-  if(d.sum){ss.style.display='';document.getElementById('cvSumTxt').textContent=d.sum;}
-  else ss.style.display='none';
-
+  if(d.sum){ss.style.display='';document.getElementById('cvSumTxt').textContent=d.sum;}else ss.style.display='none';
   let expH='';
-  d.expArr.forEach(e=>{ expH+=`
-    <div class="cv-ei">
-      <div class="cv-er"><div class="cv-et">${esc(e.t||'—')}</div>${e.d?`<div class="cv-ed">${esc(e.d)}</div>`:''}</div>
-      ${e.co?`<div class="cv-ec">${esc(e.co)}</div>`:''}
-      ${e.desc?`<div class="cv-edesc">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
-    </div>`; });
+  d.expArr.forEach(e=>{expH+=`<div class="cv-ei">
+    <div class="cv-er"><div class="cv-et">${esc(e.t||'—')}</div>${e.d?`<div class="cv-ed">${esc(e.d)}</div>`:''}</div>
+    ${e.co?`<div class="cv-ec">${esc(e.co)}</div>`:''}
+    ${e.desc?`<div class="cv-edesc">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
+  </div>`;});
   const se=document.getElementById('secExp');
-  if(expH){se.style.display='';document.getElementById('cvExpItems').innerHTML=expH;}
-  else se.style.display='none';
-
+  if(expH){se.style.display='';document.getElementById('cvExpItems').innerHTML=expH;}else se.style.display='none';
   let eduH='';
-  d.eduArr.forEach(e=>{ eduH+=`
-    <div class="cv-edi">
-      <div><div class="cv-edeg">${esc(e.deg||'—')}</div>${e.sch?`<div class="cv-esch">${esc(e.sch)}</div>`:''}</div>
-      ${e.yr?`<div class="cv-eyr">${esc(e.yr)}</div>`:''}
-    </div>`; });
+  d.eduArr.forEach(e=>{eduH+=`<div class="cv-edi">
+    <div><div class="cv-edeg">${esc(e.deg||'—')}</div>${e.sch?`<div class="cv-esch">${esc(e.sch)}</div>`:''}</div>
+    ${e.yr?`<div class="cv-eyr">${esc(e.yr)}</div>`:''}
+  </div>`;});
   const sd=document.getElementById('secEdu');
-  if(eduH){sd.style.display='';document.getElementById('cvEduItems').innerHTML=eduH;}
-  else sd.style.display='none';
-
+  if(eduH){sd.style.display='';document.getElementById('cvEduItems').innerHTML=eduH;}else sd.style.display='none';
   let sklH='';
-  d.sklArr.forEach(s=>{ sklH+=`<div class="cv-sk">${esc(s)}</div>`; });
+  d.sklArr.forEach(s=>{sklH+=`<div class="cv-sk">${esc(s)}</div>`;});
   const sk=document.getElementById('secSkl');
-  if(sklH){sk.style.display='';document.getElementById('cvSklItems').innerHTML=sklH;}
-  else sk.style.display='none';
+  if(sklH){sk.style.display='';document.getElementById('cvSklItems').innerHTML=sklH;}else sk.style.display='none';
 }
 
-/* ══ BUILD SELF-CONTAINED PDF HTML (all inline styles) ══ */
-function buildPDFHTML(d){
-  const F_BODY = "'Outfit',Arial,sans-serif";
-  const F_DISP = "'Cormorant Garamond',Georgia,serif";
-  const F_MONO = "'JetBrains Mono','Courier New',monospace";
-  const INK='#111111', INK2='#505050', INK3='#909090';
-  const PAPER='#faf8f5', WARM='#f2ede6', LINE='#e0dbd4';
-  const ACC='#c0622e', ACC2='#e07a4a';
+/* ══ BUILD SELF-CONTAINED PDF HTML (fully inline styles, no CSS vars) ══ */
+function buildPDFNode(d){
+  const FB="'Outfit',Arial,sans-serif", FD="'Cormorant Garamond',Georgia,serif", FM="'JetBrains Mono','Courier New',monospace";
+  const INK='#111111',INK2='#505050',INK3='#909090',PAPER='#faf8f5',WARM='#f2ede6',LINE='#e0dbd4',ACC='#c0622e',ACC2='#e07a4a';
 
-  const photoHTML = photoSrc
-    ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;" />`
-    : `<span style="font-size:28px;color:#888;">👤</span>`;
-
-  const contactsHTML = [d.email,d.phone,d.loc,d.web].filter(Boolean).map(c=>`
-    <span style="font-family:${F_MONO};font-size:10.5px;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:5px;margin-right:18px;margin-bottom:4px;">
-      <span style="width:4px;height:4px;background:${ACC2};border-radius:50%;display:inline-block;flex-shrink:0;"></span>${esc(c)}
+  // contacts row
+  const contacts=[d.email,d.phone,d.loc,d.web].filter(Boolean).map(c=>`
+    <span style="font-family:${FM};font-size:10.5px;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:5px;margin-right:18px;margin-bottom:4px;">
+      <span style="width:4px;height:4px;min-width:4px;background:${ACC2};border-radius:50%;display:inline-block;"></span>${esc(c)}
     </span>`).join('');
 
-  let expHTML='';
-  d.expArr.forEach(e=>{ expHTML+=`
-    <div style="padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid ${LINE};">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
-        <div style="font-family:${F_DISP};font-size:16px;font-weight:700;color:${INK};line-height:1.2;">${esc(e.t||'—')}</div>
-        ${e.d?`<div style="font-family:${F_MONO};font-size:10px;color:${INK2};white-space:nowrap;background:${WARM};padding:2px 8px;border-radius:3px;flex-shrink:0;margin-top:3px;">${esc(e.d)}</div>`:''}
-      </div>
-      ${e.co?`<div style="font-size:12px;color:${ACC};font-weight:500;margin:4px 0 6px;">${esc(e.co)}</div>`:''}
-      ${e.desc?`<div style="font-size:12.5px;line-height:1.7;color:${INK2};">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
-    </div>`; });
-  if(expHTML) expHTML=`<div>${expHTML}</div>`;
+  // photo
+  const photoInner=photoSrc
+    ?`<img src="${photoSrc}" style="width:86px;height:86px;border-radius:50%;object-fit:cover;display:block;"/>`
+    :`<span style="font-size:28px;color:#888;">👤</span>`;
 
-  let eduHTML='';
-  d.eduArr.forEach(e=>{ eduHTML+=`
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid ${LINE};">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:${INK};line-height:1.3;">${esc(e.deg||'—')}</div>
-        ${e.sch?`<div style="font-size:12px;color:${INK2};margin-top:2px;">${esc(e.sch)}</div>`:''}
-      </div>
-      ${e.yr?`<div style="font-family:${F_MONO};font-size:10px;color:${INK3};white-space:nowrap;flex-shrink:0;margin-top:3px;">${esc(e.yr)}</div>`:''}
-    </div>`; });
-  if(eduHTML) eduHTML=`<div>${eduHTML}</div>`;
-
-  let sklHTML='';
-  d.sklArr.forEach(s=>{ sklHTML+=`
-    <span style="font-size:12px;color:${INK};background:${WARM};border:1px solid ${LINE};padding:4px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin:0 8px 8px 0;">
-      <span style="width:5px;height:5px;background:${ACC};border-radius:50%;display:inline-block;flex-shrink:0;"></span>${esc(s)}
-    </span>`; });
-
-  function section(title, content){
-    if(!content) return '';
+  // section builder
+  function sec(label, body){
+    if(!body) return '';
     return `
       <div style="margin-bottom:24px;">
-        <div style="font-family:${F_MONO};font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC};display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-          ${title}
-          <span style="flex:1;height:1px;background:${LINE};display:block;"></span>
+        <div style="font-family:${FM};font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC};display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          ${label}<span style="flex:1;height:1px;background:${LINE};display:block;"></span>
         </div>
-        ${content}
+        ${body}
       </div>`;
   }
 
-  return `
-  <div style="width:794px;background:${PAPER};font-family:${F_BODY};color:${INK};font-size:14px;">
-    <!-- HEADER -->
+  // experience
+  let expBody='';
+  d.expArr.forEach((e,idx)=>{
+    const border=idx<d.expArr.length-1?`border-bottom:1px solid ${LINE};`:'';
+    expBody+=`
+      <div style="padding-bottom:16px;margin-bottom:16px;${border}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+          <div style="font-family:${FD};font-size:16px;font-weight:700;color:${INK};line-height:1.2;">${esc(e.t||'—')}</div>
+          ${e.d?`<div style="font-family:${FM};font-size:10px;color:${INK2};white-space:nowrap;background:${WARM};padding:2px 8px;border-radius:3px;flex-shrink:0;margin-top:3px;">${esc(e.d)}</div>`:''}
+        </div>
+        ${e.co?`<div style="font-size:12px;color:${ACC};font-weight:500;margin:4px 0 6px;">${esc(e.co)}</div>`:''}
+        ${e.desc?`<div style="font-size:12.5px;line-height:1.7;color:${INK2};">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
+      </div>`;
+  });
+
+  // education
+  let eduBody='';
+  d.eduArr.forEach((e,idx)=>{
+    const border=idx<d.eduArr.length-1?`border-bottom:1px solid ${LINE};`:'';
+    eduBody+=`
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:10px 0;${border}">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:${INK};line-height:1.3;">${esc(e.deg||'—')}</div>
+          ${e.sch?`<div style="font-size:12px;color:${INK2};margin-top:2px;">${esc(e.sch)}</div>`:''}
+        </div>
+        ${e.yr?`<div style="font-family:${FM};font-size:10px;color:${INK3};white-space:nowrap;flex-shrink:0;margin-top:3px;">${esc(e.yr)}</div>`:''}
+      </div>`;
+  });
+
+  // skills
+  let sklBody='';
+  d.sklArr.forEach(s=>{
+    sklBody+=`<span style="font-size:12px;color:${INK};background:${WARM};border:1px solid ${LINE};padding:4px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin:0 6px 6px 0;">
+      <span style="width:5px;height:5px;min-width:5px;background:${ACC};border-radius:50%;display:inline-block;"></span>${esc(s)}
+    </span>`;
+  });
+
+  const html=`
     <div style="background:${INK};padding:36px 44px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden;">
-      <!-- photo -->
-      <div style="width:86px;height:86px;border-radius:50%;border:3px solid ${ACC2};overflow:hidden;flex-shrink:0;background:#252218;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
-        ${photoHTML}
+      <div style="width:86px;height:86px;border-radius:50%;border:3px solid ${ACC2};overflow:hidden;flex-shrink:0;background:#252218;display:flex;align-items:center;justify-content:center;">
+        ${photoInner}
       </div>
-      <!-- info -->
-      <div style="flex:1;position:relative;z-index:1;">
-        <div style="font-family:${F_DISP};font-size:34px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1;">${esc(d.name)}</div>
-        <div style="font-family:${F_MONO};font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC2};margin-top:6px;">${esc(d.title)}</div>
-        <div style="display:flex;flex-wrap:wrap;margin-top:14px;">${contactsHTML}</div>
+      <div style="flex:1;">
+        <div style="font-family:${FD};font-size:34px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1;">${esc(d.name)}</div>
+        <div style="font-family:${FM};font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC2};margin-top:6px;">${esc(d.title)}</div>
+        <div style="display:flex;flex-wrap:wrap;margin-top:14px;">${contacts}</div>
       </div>
     </div>
-    <!-- BODY -->
-    <div style="padding:28px 44px 38px;">
-      ${section('Profile', d.sum ? `<p style="font-size:13px;line-height:1.8;color:#3a3a3a;">${esc(d.sum)}</p>` : '')}
-      ${section('Experience', expHTML)}
-      ${section('Education', eduHTML)}
-      ${section('Skills', sklHTML ? `<div style="display:flex;flex-wrap:wrap;">${sklHTML}</div>` : '')}
-    </div>
-  </div>`;
+    <div style="padding:28px 44px 38px;background:${PAPER};">
+      ${sec('Profile', d.sum?`<p style="font-size:13px;line-height:1.8;color:#3a3a3a;">${esc(d.sum)}</p>`:'')}
+      ${sec('Experience', expBody)}
+      ${sec('Education', eduBody)}
+      ${sec('Skills', sklBody?`<div style="display:flex;flex-wrap:wrap;">${sklBody}</div>`:'')}
+    </div>`;
+
+  const node=document.createElement('div');
+  node.style.cssText=`
+    position:fixed;
+    top:0;left:0;
+    width:794px;
+    background:${PAPER};
+    font-family:${FB};
+    color:${INK};
+    z-index:99998;
+    pointer-events:none;
+  `;
+  node.innerHTML=html;
+  return node;
 }
 
 /* ══ DOWNLOAD PDF ══ */
 window.downloadPDF=async function(){
   const btn=document.getElementById('btnDl');
-  btn.disabled=true; btn.innerHTML='⏳ &nbsp;Generating…';
-  showToast('Building your PDF…');
+  const overlay=document.getElementById('genOverlay');
+  btn.disabled=true;
+  overlay.classList.add('active'); // show overlay FIRST so user can't see the clone
 
+  let cloneNode=null;
   try{
-    const d = getData();
-    const html = buildPDFHTML(d);
+    const d=getData();
 
-    /* Inject into visible off-screen mount */
-    const mount = document.getElementById('pdfMount');
-    mount.innerHTML = html;
+    // Build clone and attach to body (position:fixed top:0 left:0 — fully visible to html2canvas)
+    cloneNode=buildPDFNode(d);
+    document.body.appendChild(cloneNode);
 
-    /* Wait for fonts + layout */
+    // Let browser paint it fully
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    await new Promise(r=>setTimeout(r,600));
+    await new Promise(r=>setTimeout(r,700));
 
-    const target = mount.firstElementChild;
-
-    const canvas = await html2canvas(target, {
-      scale: 2.5,
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: '#faf8f5',
-      logging: false,
-      width: 794,
-      height: target.scrollHeight,
-      windowWidth: 794,
-      windowHeight: target.scrollHeight,
-      scrollX: 0,
-      scrollY: -window.scrollY,
-      x: 0,
-      y: 0
+    const canvas=await html2canvas(cloneNode,{
+      scale:2.5,
+      useCORS:true,
+      allowTaint:true,
+      backgroundColor:'#faf8f5',
+      logging:false,
+      width:794,
+      height:cloneNode.scrollHeight,
+      windowWidth:794,
+      windowHeight:cloneNode.scrollHeight,
+      x:0,
+      y:0,
+      scrollX:0,
+      scrollY:0
     });
 
-    mount.innerHTML = '';
+    // Remove clone before saving
+    document.body.removeChild(cloneNode); cloneNode=null;
+    overlay.classList.remove('active');
 
-    const {jsPDF} = window.jspdf;
+    // Build PDF
+    const {jsPDF}=window.jspdf;
     const PW=595.28, PH=841.89;
-    const fullH = (canvas.height / canvas.width) * PW;
-    const pdf = new jsPDF({orientation:'portrait',unit:'pt',format:'a4',compress:true});
+    const fullH=(canvas.height/canvas.width)*PW;
+    const pdf=new jsPDF({orientation:'portrait',unit:'pt',format:'a4',compress:true});
 
-    if(fullH <= PH){
+    if(fullH<=PH){
       pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,PW,fullH);
     } else {
-      const pxPerPt = canvas.width / PW;
-      const slicePx = Math.floor(PH * pxPerPt);
+      const pxPerPt=canvas.width/PW;
+      const slicePx=Math.floor(PH*pxPerPt);
       let yPx=0;
-      while(yPx < canvas.height){
-        const chunk = Math.min(slicePx, canvas.height-yPx);
+      while(yPx<canvas.height){
+        const chunk=Math.min(slicePx,canvas.height-yPx);
         const s=document.createElement('canvas');
         s.width=canvas.width; s.height=chunk;
-        s.getContext('2d').drawImage(canvas, 0,yPx,canvas.width,chunk, 0,0,canvas.width,chunk);
+        s.getContext('2d').drawImage(canvas,0,yPx,canvas.width,chunk,0,0,canvas.width,chunk);
         const chH=(chunk/canvas.width)*PW;
         if(yPx>0) pdf.addPage();
         pdf.addImage(s.toDataURL('image/jpeg',0.95),'JPEG',0,0,PW,chH);
@@ -597,13 +573,17 @@ window.downloadPDF=async function(){
 
     const fname=(v('fName')||'CV').replace(/\s+/g,'_')+'_CV.pdf';
     pdf.save(fname);
-    showToast('✓ PDF saved!');
+    showToast('✓ PDF saved successfully!');
 
   } catch(err){
-    console.error(err);
-    showToast('Error — check console and retry.');
+    console.error('PDF error:',err);
+    if(cloneNode && cloneNode.parentNode) document.body.removeChild(cloneNode);
+    overlay.classList.remove('active');
+    showToast('Error generating PDF — please try again.');
   } finally{
-    btn.disabled=false; btn.innerHTML='⬇ &nbsp;Download PDF';
+    btn.disabled=false;
+    btn.innerHTML='⬇ &nbsp;Download PDF';
+    overlay.classList.remove('active');
   }
 };
 
@@ -611,7 +591,7 @@ window.downloadPDF=async function(){
 function showToast(m){
   const el=document.getElementById('toast');
   el.textContent=m; el.classList.add('on');
-  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2800);
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),3000);
 }
 
 /* ══ INIT ══ */
