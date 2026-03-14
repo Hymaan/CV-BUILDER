@@ -4,955 +4,618 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CV Builder</title>
-
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Outfit:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-
-  <!-- Libraries -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
   <style>
-    /* ============================================================
-       RESET & BASE
-    ============================================================ */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
     :root {
-      --c-bg:        #141210;
-      --c-panel:     #1c1916;
-      --c-border:    #2e2b27;
-      --c-text:      #e4e0da;
-      --c-muted:     #7a756f;
-      --c-faint:     #3a3630;
-      --c-input-bg:  #242018;
-      --c-accent:    #c0622e;
-      --c-accent2:   #e07a4a;
-      --c-paper:     #faf8f5;
-      --c-warm:      #f2ede6;
-      --c-ink:       #111111;
-      --c-ink2:      #555555;
-      --c-ink3:      #999999;
-      --c-line:      #e0dbd4;
-      --font-display: 'Cormorant Garamond', Georgia, serif;
-      --font-body:    'Outfit', system-ui, sans-serif;
-      --font-mono:    'JetBrains Mono', 'Courier New', monospace;
-      --sidebar-w:   400px;
-      --radius:      8px;
+      --sb:     400px;
+      --r:      7px;
+      --bg:     #141210;
+      --panel:  #1c1916;
+      --bdr:    #2e2b27;
+      --txt:    #e4e0da;
+      --muted:  #7a756f;
+      --faint:  #3a3630;
+      --inp:    #242018;
+      --acc:    #c0622e;
+      --acc2:   #e07a4a;
     }
 
-    html, body { height: 100%; overflow: hidden; }
+    html, body { height:100%; overflow:hidden; }
+    body { font-family:'Outfit',system-ui,sans-serif; background:var(--bg); color:var(--txt); display:flex; }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--c-bg);
-      color: var(--c-text);
-      display: flex;
-    }
-
-    /* ============================================================
-       SIDEBAR
-    ============================================================ */
+    /* ── SIDEBAR ── */
     #sidebar {
-      width: var(--sidebar-w);
-      min-width: var(--sidebar-w);
-      background: var(--c-panel);
-      border-right: 1px solid var(--c-border);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      position: relative;
+      width:var(--sb); min-width:var(--sb);
+      background:var(--panel); border-right:1px solid var(--bdr);
+      display:flex; flex-direction:column; height:100vh; position:relative;
     }
+    .sbh { padding:22px 26px 16px; border-bottom:1px solid var(--bdr); flex-shrink:0; }
+    .sbh-logo { font-family:'Cormorant Garamond',Georgia,serif; font-size:22px; font-weight:700; color:var(--txt); }
+    .sbh-logo em { color:var(--acc2); font-style:normal; }
+    .sbh-sub { font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:1.8px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
 
-    .sb-head {
-      padding: 22px 26px 18px;
-      border-bottom: 1px solid var(--c-border);
-      flex-shrink: 0;
-    }
-    .sb-logo {
-      font-family: var(--font-display);
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--c-text);
-      letter-spacing: -0.3px;
-    }
-    .sb-logo em { color: var(--c-accent2); font-style: normal; }
-    .sb-tag {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      letter-spacing: 1.8px;
-      text-transform: uppercase;
-      color: var(--c-muted);
-      margin-top: 3px;
-    }
+    .sbsc { flex:1; overflow-y:auto; padding:16px 24px 110px; scrollbar-width:thin; scrollbar-color:var(--faint) transparent; }
+    .sbsc::-webkit-scrollbar { width:4px; }
+    .sbsc::-webkit-scrollbar-thumb { background:var(--faint); border-radius:4px; }
 
-    .sb-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 18px 26px 120px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--c-faint) transparent;
+    .slbl {
+      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2px;
+      text-transform:uppercase; color:var(--muted);
+      margin-top:22px; margin-bottom:10px; padding-bottom:7px; border-bottom:1px solid var(--bdr);
     }
-    .sb-body::-webkit-scrollbar { width: 4px; }
-    .sb-body::-webkit-scrollbar-thumb { background: var(--c-faint); border-radius: 4px; }
+    .slbl:first-child { margin-top:0; }
 
-    /* Section labels */
-    .sb-label {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      color: var(--c-muted);
-      margin-top: 24px;
-      margin-bottom: 10px;
-      padding-bottom: 7px;
-      border-bottom: 1px solid var(--c-border);
+    .r2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .fld { margin-bottom:10px; }
+    .fld label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
+    .fld input, .fld textarea {
+      width:100%; background:var(--inp); border:1px solid var(--faint); border-radius:var(--r);
+      padding:8px 11px; font-family:'Outfit',system-ui,sans-serif; font-size:13px; color:var(--txt);
+      transition:border-color .15s; resize:none; line-height:1.5;
     }
-    .sb-label:first-child { margin-top: 0; }
+    .fld input:focus, .fld textarea:focus { outline:none; border-color:var(--acc2); }
+    .fld input::placeholder, .fld textarea::placeholder { color:var(--faint); }
 
-    /* Fields */
-    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .field { margin-bottom: 10px; }
-    .field label {
-      display: block;
-      font-size: 11px;
-      color: var(--c-muted);
-      margin-bottom: 4px;
-      letter-spacing: 0.2px;
+    /* photo */
+    .pbox {
+      display:flex; align-items:center; gap:14px;
+      background:var(--inp); border:2px dashed var(--faint); border-radius:var(--r);
+      padding:12px 14px; cursor:pointer; transition:border-color .15s; margin-bottom:10px;
     }
-    .field input,
-    .field textarea {
-      width: 100%;
-      background: var(--c-input-bg);
-      border: 1px solid var(--c-faint);
-      border-radius: var(--radius);
-      padding: 8px 11px;
-      font-family: var(--font-body);
-      font-size: 13px;
-      color: var(--c-text);
-      transition: border-color 0.15s;
-      resize: none;
-      line-height: 1.5;
+    .pbox:hover { border-color:var(--acc2); }
+    .pav {
+      width:52px; height:52px; border-radius:50%; border:2px solid var(--faint);
+      background:var(--bg); overflow:hidden; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center; font-size:20px;
     }
-    .field input:focus,
-    .field textarea:focus {
-      outline: none;
-      border-color: var(--c-accent2);
+    .pav img { width:100%; height:100%; object-fit:cover; display:none; }
+    .pinf .pt { font-size:12px; color:var(--txt); font-weight:500; }
+    .pinf .ps { font-size:11px; color:var(--muted); margin-top:2px; }
+    #pRm {
+      margin-left:auto; background:none; border:none; color:#c0392b;
+      font-size:18px; cursor:pointer; padding:4px 6px; border-radius:4px;
+      transition:background .15s; display:none;
     }
-    .field input::placeholder,
-    .field textarea::placeholder { color: var(--c-faint); }
+    #pRm:hover { background:rgba(192,57,43,.15); }
+    #pFile { display:none; }
 
-    /* Photo upload */
-    .photo-box {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      background: var(--c-input-bg);
-      border: 2px dashed var(--c-faint);
-      border-radius: var(--radius);
-      padding: 12px 14px;
-      cursor: pointer;
-      transition: border-color 0.15s;
-      margin-bottom: 10px;
+    /* cards */
+    .card { background:#201d19; border:1px solid var(--bdr); border-radius:var(--r); padding:12px 13px; margin-bottom:8px; }
+    .ctop { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .clbl { font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--acc2); }
+    .brm {
+      background:none; border:1px solid var(--bdr); color:var(--muted);
+      padding:2px 8px; border-radius:4px; font-size:11px; cursor:pointer;
+      font-family:'Outfit',sans-serif; transition:all .15s;
     }
-    .photo-box:hover { border-color: var(--c-accent2); }
-    .photo-avatar {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      border: 2px solid var(--c-faint);
-      background: var(--c-bg);
-      overflow: hidden;
-      flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px;
+    .brm:hover { border-color:#c0392b; color:#c0392b; }
+    .badd {
+      width:100%; background:var(--inp); border:1px dashed var(--faint); color:var(--muted);
+      padding:9px; border-radius:var(--r); font-size:12px; cursor:pointer;
+      font-family:'Outfit',sans-serif; transition:all .15s; margin-top:2px;
     }
-    .photo-avatar img { width: 100%; height: 100%; object-fit: cover; display: none; }
-    .photo-info .pi-title { font-size: 12px; color: var(--c-text); font-weight: 500; }
-    .photo-info .pi-sub  { font-size: 11px; color: var(--c-muted); margin-top: 2px; }
-    .photo-remove {
-      margin-left: auto;
-      background: none;
-      border: none;
-      color: #c0392b;
-      font-size: 18px;
-      cursor: pointer;
-      line-height: 1;
-      padding: 4px 6px;
-      border-radius: 4px;
-      transition: background 0.15s;
-      display: none;
-    }
-    .photo-remove:hover { background: rgba(192,57,43,.15); }
-    #photoFile { display: none; }
+    .badd:hover { border-color:var(--acc2); color:var(--acc2); }
 
-    /* Entry cards */
-    .card {
-      background: #201d19;
-      border: 1px solid var(--c-border);
-      border-radius: var(--radius);
-      padding: 12px 13px;
-      margin-bottom: 8px;
+    .sbft {
+      position:absolute; bottom:0; left:0; width:100%;
+      padding:14px 22px 16px; background:var(--panel); border-top:1px solid var(--bdr);
     }
-    .card-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 10px;
+    #btnDl {
+      width:100%; background:var(--acc); color:#fff; border:none;
+      padding:13px; border-radius:var(--r); font-size:14px; font-weight:600;
+      cursor:pointer; font-family:'Outfit',sans-serif; transition:background .15s,transform .1s;
     }
-    .card-tag {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--c-accent2);
-    }
-    .btn-remove {
-      background: none;
-      border: 1px solid var(--c-border);
-      color: var(--c-muted);
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 11px;
-      cursor: pointer;
-      font-family: var(--font-body);
-      transition: all 0.15s;
-    }
-    .btn-remove:hover { border-color: #c0392b; color: #c0392b; }
+    #btnDl:hover { background:#a85228; transform:translateY(-1px); }
+    #btnDl:active { transform:translateY(0); }
+    #btnDl:disabled { background:#6b3220; cursor:not-allowed; transform:none; }
 
-    .btn-add {
-      width: 100%;
-      background: var(--c-input-bg);
-      border: 1px dashed var(--c-faint);
-      color: var(--c-muted);
-      padding: 9px;
-      border-radius: var(--radius);
-      font-size: 12px;
-      cursor: pointer;
-      font-family: var(--font-body);
-      transition: all 0.15s;
-      margin-top: 2px;
-    }
-    .btn-add:hover { border-color: var(--c-accent2); color: var(--c-accent2); }
-
-    /* Footer */
-    .sb-foot {
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 100%;
-      padding: 14px 22px 16px;
-      background: var(--c-panel);
-      border-top: 1px solid var(--c-border);
-    }
-    .btn-dl {
-      width: 100%;
-      background: var(--c-accent);
-      color: #fff;
-      border: none;
-      padding: 13px;
-      border-radius: var(--radius);
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: var(--font-body);
-      transition: background 0.15s, transform 0.1s;
-      letter-spacing: 0.2px;
-    }
-    .btn-dl:hover  { background: #a85228; transform: translateY(-1px); }
-    .btn-dl:active { transform: translateY(0); }
-    .btn-dl:disabled { background: #6b3220; cursor: not-allowed; transform: none; }
-
-    /* ============================================================
-       PREVIEW AREA
-    ============================================================ */
+    /* ── PREVIEW ── */
     #preview {
-      flex: 1;
-      background: var(--c-bg);
-      overflow-y: auto;
-      padding: 44px 40px 60px;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
+      flex:1; background:#0e0c0a; overflow-y:auto;
+      padding:44px 36px 60px; display:flex; justify-content:center; align-items:flex-start;
     }
+    #preview::-webkit-scrollbar { width:6px; }
+    #preview::-webkit-scrollbar-thumb { background:var(--faint); border-radius:4px; }
 
-    /* ============================================================
-       CV DOCUMENT
-    ============================================================ */
+    /* ── CV preview doc ── */
     #cvDoc {
-      width: 100%;
-      max-width: 680px;
-      background: var(--c-paper);
-      color: var(--c-ink);
-      font-family: var(--font-body);
-      box-shadow: 0 24px 80px rgba(0,0,0,.55);
-      border-radius: 2px;
+      width:100%; max-width:680px;
+      background:#faf8f5; color:#111;
+      font-family:'Outfit',system-ui,sans-serif;
+      box-shadow:0 24px 80px rgba(0,0,0,.6);
+      border-radius:2px;
     }
-
-    /* --- CV HEADER --- */
     .cv-hd {
-      background: var(--c-ink);
-      padding: 36px 44px;
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      position: relative;
-      overflow: hidden;
+      background:#111111; padding:36px 44px;
+      display:flex; align-items:center; gap:24px;
+      position:relative; overflow:hidden;
     }
     .cv-hd::before {
-      content: '';
-      position: absolute;
-      right: -50px; top: -50px;
-      width: 220px; height: 220px;
-      background: var(--c-accent);
-      opacity: .08;
-      border-radius: 50%;
-      pointer-events: none;
+      content:''; position:absolute; right:-50px; top:-50px;
+      width:220px; height:220px; background:#c0622e; opacity:.08; border-radius:50%;
     }
-    .cv-hd::after {
-      content: '';
-      position: absolute;
-      left: 30px; bottom: -70px;
-      width: 160px; height: 160px;
-      background: var(--c-accent2);
-      opacity: .05;
-      border-radius: 50%;
-      pointer-events: none;
+    .cv-photo {
+      width:86px; height:86px; border-radius:50%;
+      border:3px solid #e07a4a; overflow:hidden; flex-shrink:0;
+      background:#252218; display:flex; align-items:center; justify-content:center;
+      font-size:28px; position:relative; z-index:1;
     }
+    .cv-photo img { width:100%; height:100%; object-fit:cover; display:none; }
+    .cv-hd-info { flex:1; position:relative; z-index:1; }
+    #cvName { font-family:'Cormorant Garamond',Georgia,serif; font-size:34px; font-weight:700; color:#fff; letter-spacing:-.5px; line-height:1.1; }
+    #cvJobT { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:2.5px; text-transform:uppercase; color:#e07a4a; margin-top:6px; }
+    #cvCont { display:flex; flex-wrap:wrap; gap:4px 18px; margin-top:14px; }
+    .cvc { font-family:'JetBrains Mono',monospace; font-size:10.5px; color:rgba(255,255,255,.5); display:flex; align-items:center; gap:5px; }
+    .cvc::before { content:''; width:4px; height:4px; background:#e07a4a; border-radius:50%; flex-shrink:0; }
 
-    #cvPhoto {
-      width: 86px; height: 86px;
-      border-radius: 50%;
-      border: 3px solid var(--c-accent2);
-      overflow: hidden;
-      flex-shrink: 0;
-      background: #252218;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-      position: relative; z-index: 1;
+    .cv-body { padding:28px 44px 38px; }
+    .cv-sec { margin-bottom:24px; }
+    .cv-sec:last-child { margin-bottom:0; }
+    .cv-sec-t {
+      font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:2.5px;
+      text-transform:uppercase; color:#c0622e;
+      display:flex; align-items:center; gap:10px; margin-bottom:14px;
     }
-    #cvPhoto img {
-      width: 100%; height: 100%;
-      object-fit: cover;
-      display: none;
-    }
+    .cv-sec-t::after { content:''; flex:1; height:1px; background:#e0dbd4; }
 
-    .cv-hd-text { flex: 1; position: relative; z-index: 1; }
-    #cv-name {
-      font-family: var(--font-display);
-      font-size: 34px;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: -0.5px;
-      line-height: 1.1;
-    }
-    #cv-title {
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--c-accent2);
-      margin-top: 6px;
-    }
-    #cv-contacts {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 18px;
-      margin-top: 14px;
-    }
-    .cv-contact {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      color: rgba(255,255,255,.5);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-    .cv-contact::before {
-      content: '';
-      width: 4px; height: 4px;
-      background: var(--c-accent2);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
+    .cv-sum { font-size:13px; line-height:1.8; color:#3a3a3a; }
 
-    /* --- CV BODY --- */
-    .cv-body { padding: 30px 44px 38px; }
+    .cv-ei { padding-bottom:16px; margin-bottom:16px; border-bottom:1px solid #e0dbd4; }
+    .cv-ei:last-child { border-bottom:none; padding-bottom:0; margin-bottom:0; }
+    .cv-er { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+    .cv-et { font-family:'Cormorant Garamond',Georgia,serif; font-size:16px; font-weight:700; color:#111; line-height:1.2; }
+    .cv-ed { font-family:'JetBrains Mono',monospace; font-size:10px; color:#505050; white-space:nowrap; background:#f2ede6; padding:2px 8px; border-radius:3px; flex-shrink:0; margin-top:3px; }
+    .cv-ec { font-size:12px; color:#c0622e; font-weight:500; margin:4px 0 6px; }
+    .cv-edesc { font-size:12.5px; line-height:1.7; color:#505050; }
 
-    .cv-sec { margin-bottom: 26px; }
-    .cv-sec:last-child { margin-bottom: 0; }
+    .cv-edi { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; padding:10px 0; border-bottom:1px solid #e0dbd4; }
+    .cv-edi:first-child { padding-top:0; }
+    .cv-edi:last-child { border-bottom:none; padding-bottom:0; }
+    .cv-edeg { font-size:13px; font-weight:600; color:#111; line-height:1.3; }
+    .cv-esch { font-size:12px; color:#505050; margin-top:2px; }
+    .cv-eyr  { font-family:'JetBrains Mono',monospace; font-size:10px; color:#909090; white-space:nowrap; flex-shrink:0; margin-top:3px; }
 
-    .cv-sec-title {
-      font-family: var(--font-mono);
-      font-size: 9px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--c-accent);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-    }
-    .cv-sec-title::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--c-line);
-    }
+    .cv-sks { display:flex; flex-wrap:wrap; gap:8px; }
+    .cv-sk { font-size:12px; color:#111; background:#f2ede6; border:1px solid #e0dbd4; padding:4px 14px; border-radius:20px; display:flex; align-items:center; gap:6px; }
+    .cv-sk::before { content:''; width:5px; height:5px; background:#c0622e; border-radius:50%; flex-shrink:0; }
 
-    /* Summary */
-    .cv-summary {
-      font-size: 13px;
-      line-height: 1.8;
-      color: #3a3a3a;
-    }
-
-    /* Experience */
-    .cv-exp-item {
-      padding-bottom: 18px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--c-line);
-    }
-    .cv-exp-item:last-child { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
-
-    .cv-exp-row1 {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-    }
-    .cv-exp-title-text {
-      font-family: var(--font-display);
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--c-ink);
-      line-height: 1.2;
-    }
-    .cv-exp-dates {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--c-ink2);
-      white-space: nowrap;
-      background: var(--c-warm);
-      padding: 2px 8px;
-      border-radius: 3px;
-      margin-top: 3px;
-      flex-shrink: 0;
-    }
-    .cv-exp-company {
-      font-size: 12px;
-      color: var(--c-accent);
-      font-weight: 500;
-      margin: 4px 0 7px;
-    }
-    .cv-exp-desc {
-      font-size: 12.5px;
-      line-height: 1.7;
-      color: var(--c-ink2);
-    }
-
-    /* Education */
-    .cv-edu-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 16px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--c-line);
-    }
-    .cv-edu-item:first-child { padding-top: 0; }
-    .cv-edu-item:last-child  { border-bottom: none; padding-bottom: 0; }
-    .cv-edu-degree {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--c-ink);
-      line-height: 1.3;
-    }
-    .cv-edu-school {
-      font-size: 12px;
-      color: var(--c-ink2);
-      margin-top: 2px;
-    }
-    .cv-edu-year {
-      font-family: var(--font-mono);
-      font-size: 10px;
-      color: var(--c-ink3);
-      white-space: nowrap;
-      flex-shrink: 0;
-      margin-top: 3px;
-    }
-
-    /* Skills */
-    .cv-skills-wrap {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .cv-skill {
-      font-size: 12px;
-      color: var(--c-ink);
-      background: var(--c-warm);
-      border: 1px solid var(--c-line);
-      padding: 4px 14px;
-      border-radius: 20px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .cv-skill::before {
-      content: '';
-      width: 5px; height: 5px;
-      background: var(--c-accent);
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    /* Toast */
+    /* toast */
     #toast {
-      position: fixed;
-      bottom: 30px; left: 50%;
-      transform: translateX(-50%) translateY(20px);
-      background: #222;
-      color: #eee;
-      padding: 10px 22px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-family: var(--font-body);
-      opacity: 0;
-      transition: opacity .3s, transform .3s;
-      pointer-events: none;
-      z-index: 9999;
-      white-space: nowrap;
+      position:fixed; bottom:28px; left:50%;
+      transform:translateX(-50%) translateY(16px);
+      background:#222; color:#eee; padding:10px 22px; border-radius:30px;
+      font-size:13px; font-family:'Outfit',sans-serif;
+      opacity:0; transition:opacity .3s,transform .3s;
+      pointer-events:none; z-index:9999; white-space:nowrap;
     }
-    #toast.show {
-      opacity: 1;
-      transform: translateX(-50%) translateY(0);
-    }
+    #toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
 
-    /* Scrollbar on preview */
-    #preview::-webkit-scrollbar { width: 6px; }
-    #preview::-webkit-scrollbar-thumb { background: var(--c-faint); border-radius: 4px; }
+    /* PDF render container — positioned off-screen but VISIBLE so html2canvas works */
+    #pdfMount {
+      position:fixed;
+      top:0; left:-9999px;
+      width:794px;
+      background:transparent;
+      z-index:9998;
+    }
   </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════ SIDEBAR ═══════════════════════════ -->
+<!-- SIDEBAR -->
 <aside id="sidebar">
-  <div class="sb-head">
-    <div class="sb-logo">CV<em>.</em>Builder</div>
-    <div class="sb-tag">Professional Resume Creator</div>
+  <div class="sbh">
+    <div class="sbh-logo">CV<em>.</em>Builder</div>
+    <div class="sbh-sub">Professional Resume Creator</div>
   </div>
+  <div class="sbsc">
 
-  <div class="sb-body">
-
-    <!-- Photo -->
-    <div class="sb-label">Profile Photo</div>
-    <div class="photo-box" id="photoBox" onclick="document.getElementById('photoFile').click()">
-      <div class="photo-avatar" id="photoAvatar">
-        <span id="photoEmoji">👤</span>
-        <img id="photoThumb" alt="photo" />
-      </div>
-      <div class="photo-info">
-        <div class="pi-title">Upload Photo</div>
-        <div class="pi-sub">JPG or PNG · appears in CV header</div>
-      </div>
-      <button class="photo-remove" id="photoRemove" onclick="removePhoto(event)" title="Remove photo">✕</button>
+    <div class="slbl">Profile Photo</div>
+    <div class="pbox" id="pBox" onclick="document.getElementById('pFile').click()">
+      <div class="pav" id="pAv"><span id="pEmoji">👤</span><img id="pThumb" alt="" /></div>
+      <div class="pinf"><div class="pt">Upload Photo</div><div class="ps">JPG / PNG — shown in CV header</div></div>
+      <button id="pRm" onclick="rmPhoto(event)">✕</button>
     </div>
-    <input type="file" id="photoFile" accept="image/png,image/jpeg,image/jpg,image/webp" />
+    <input type="file" id="pFile" accept="image/png,image/jpeg,image/webp" />
 
-    <!-- Personal -->
-    <div class="sb-label">Personal Information</div>
-    <div class="field"><label>Full Name</label><input type="text" id="f-name" placeholder="e.g. John Smith" /></div>
-    <div class="field"><label>Job Title</label><input type="text" id="f-title" placeholder="e.g. Software Engineer" /></div>
-    <div class="row2">
-      <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="you@email.com" /></div>
-      <div class="field"><label>Phone</label><input type="tel" id="f-phone" placeholder="+1 555 0100" /></div>
+    <div class="slbl">Personal Information</div>
+    <div class="fld"><label>Full Name</label><input id="fName" type="text" placeholder="e.g. John Smith" /></div>
+    <div class="fld"><label>Job Title</label><input id="fTitle" type="text" placeholder="e.g. Software Engineer" /></div>
+    <div class="r2">
+      <div class="fld"><label>Email</label><input id="fEmail" type="email" placeholder="you@email.com" /></div>
+      <div class="fld"><label>Phone</label><input id="fPhone" type="tel" placeholder="+1 555 0100" /></div>
     </div>
-    <div class="row2">
-      <div class="field"><label>Location</label><input type="text" id="f-location" placeholder="City, Country" /></div>
-      <div class="field"><label>LinkedIn / Website</label><input type="text" id="f-web" placeholder="linkedin.com/in/you" /></div>
+    <div class="r2">
+      <div class="fld"><label>Location</label><input id="fLoc" type="text" placeholder="City, Country" /></div>
+      <div class="fld"><label>LinkedIn / Website</label><input id="fWeb" type="text" placeholder="linkedin.com/in/you" /></div>
     </div>
 
-    <!-- Summary -->
-    <div class="sb-label">Professional Summary</div>
-    <div class="field">
-      <textarea id="f-summary" rows="4" placeholder="Write a short professional summary about yourself..."></textarea>
-    </div>
+    <div class="slbl">Professional Summary</div>
+    <div class="fld"><textarea id="fSum" rows="4" placeholder="Write a short professional summary…"></textarea></div>
 
-    <!-- Experience -->
-    <div class="sb-label">Work Experience</div>
-    <div id="exp-list"></div>
-    <button class="btn-add" onclick="addExp()">＋ Add Experience</button>
+    <div class="slbl">Work Experience</div>
+    <div id="expList"></div>
+    <button class="badd" onclick="addExp()">＋ Add Experience</button>
 
-    <!-- Education -->
-    <div class="sb-label">Education</div>
-    <div id="edu-list"></div>
-    <button class="btn-add" onclick="addEdu()">＋ Add Education</button>
+    <div class="slbl">Education</div>
+    <div id="eduList"></div>
+    <button class="badd" onclick="addEdu()">＋ Add Education</button>
 
-    <!-- Skills -->
-    <div class="sb-label">Skills</div>
-    <div id="skill-list"></div>
-    <button class="btn-add" onclick="addSkill()">＋ Add Skill</button>
-
-  </div><!-- /sb-body -->
-
-  <div class="sb-foot">
-    <button class="btn-dl" id="btnDl" onclick="downloadPDF()">⬇ &nbsp;Download PDF</button>
+    <div class="slbl">Skills</div>
+    <div id="sklList"></div>
+    <button class="badd" onclick="addSkl()">＋ Add Skill</button>
+  </div>
+  <div class="sbft">
+    <button id="btnDl" onclick="downloadPDF()">⬇ &nbsp;Download PDF</button>
   </div>
 </aside>
 
-<!-- ═══════════════════════════ PREVIEW ═══════════════════════════ -->
+<!-- PREVIEW -->
 <main id="preview">
   <div id="cvDoc">
-
-    <!-- Header -->
     <div class="cv-hd">
-      <div id="cvPhoto">
-        <span id="cvPhotoEmoji">👤</span>
-        <img id="cvPhotoImg" alt="profile photo" />
-      </div>
-      <div class="cv-hd-text">
-        <div id="cv-name">Your Name</div>
-        <div id="cv-title">Your Job Title</div>
-        <div id="cv-contacts"></div>
+      <div class="cv-photo" id="cvPhoto"><span id="cvPE">👤</span><img id="cvPI" alt="" /></div>
+      <div class="cv-hd-info">
+        <div id="cvName">Your Name</div>
+        <div id="cvJobT">Your Job Title</div>
+        <div id="cvCont"></div>
       </div>
     </div>
-
-    <!-- Body -->
     <div class="cv-body">
-
-      <div class="cv-sec" id="sec-summary" style="display:none">
-        <div class="cv-sec-title">Profile</div>
-        <p class="cv-summary" id="cv-summary-text"></p>
-      </div>
-
-      <div class="cv-sec" id="sec-exp" style="display:none">
-        <div class="cv-sec-title">Experience</div>
-        <div id="cv-exp-items"></div>
-      </div>
-
-      <div class="cv-sec" id="sec-edu" style="display:none">
-        <div class="cv-sec-title">Education</div>
-        <div id="cv-edu-items"></div>
-      </div>
-
-      <div class="cv-sec" id="sec-skills" style="display:none">
-        <div class="cv-sec-title">Skills</div>
-        <div class="cv-skills-wrap" id="cv-skill-items"></div>
-      </div>
-
+      <div class="cv-sec" id="secSum" style="display:none"><div class="cv-sec-t">Profile</div><p class="cv-sum" id="cvSumTxt"></p></div>
+      <div class="cv-sec" id="secExp" style="display:none"><div class="cv-sec-t">Experience</div><div id="cvExpItems"></div></div>
+      <div class="cv-sec" id="secEdu" style="display:none"><div class="cv-sec-t">Education</div><div id="cvEduItems"></div></div>
+      <div class="cv-sec" id="secSkl" style="display:none"><div class="cv-sec-t">Skills</div><div class="cv-sks" id="cvSklItems"></div></div>
     </div>
   </div>
 </main>
 
+<!-- PDF mount — off-screen but NOT hidden so html2canvas can capture it -->
+<div id="pdfMount"></div>
+
 <div id="toast"></div>
 
-<!-- ═══════════════════════════ SCRIPT ═══════════════════════════ -->
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  /* ── state ── */
-  let photoSrc = null;
-  let expIdx = 0, eduIdx = 0, skillIdx = 0;
+let ei=0, di=0, si=0, photoSrc=null;
 
-  /* ─────────────── PHOTO ─────────────── */
-  document.getElementById('photoFile').addEventListener('change', function () {
-    const file = this.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function (e) {
-      photoSrc = e.target.result;
-      // sidebar
-      document.getElementById('photoEmoji').style.display = 'none';
-      const t = document.getElementById('photoThumb');
-      t.src = photoSrc;
-      t.style.display = 'block';
-      document.getElementById('photoRemove').style.display = 'block';
-      // cv
-      document.getElementById('cvPhotoEmoji').style.display = 'none';
-      const ci = document.getElementById('cvPhotoImg');
-      ci.src = photoSrc;
-      ci.style.display = 'block';
-    };
-    reader.readAsDataURL(file);
+/* ══ PHOTO ══ */
+document.getElementById('pFile').addEventListener('change', function(){
+  const file=this.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=function(e){
+    photoSrc=e.target.result;
+    document.getElementById('pEmoji').style.display='none';
+    const t=document.getElementById('pThumb'); t.src=photoSrc; t.style.display='block';
+    document.getElementById('pRm').style.display='block';
+    document.getElementById('cvPE').style.display='none';
+    const ci=document.getElementById('cvPI'); ci.src=photoSrc; ci.style.display='block';
+  };
+  r.readAsDataURL(file);
+});
+window.rmPhoto=function(e){
+  e.stopPropagation();
+  photoSrc=null;
+  document.getElementById('pEmoji').style.display='';
+  const t=document.getElementById('pThumb'); t.src=''; t.style.display='none';
+  document.getElementById('pRm').style.display='none';
+  document.getElementById('cvPE').style.display='';
+  const ci=document.getElementById('cvPI'); ci.src=''; ci.style.display='none';
+  document.getElementById('pFile').value='';
+};
+
+/* ══ ADD ENTRIES ══ */
+window.addExp=function(){
+  ei++;
+  const i=ei;
+  document.getElementById('expList').insertAdjacentHTML('beforeend',`
+    <div class="card" data-exp="${i}">
+      <div class="ctop"><span class="clbl">EXPERIENCE</span><button class="brm" onclick="delCard('exp','${i}')">Remove</button></div>
+      <div class="r2">
+        <div class="fld"><label>Job Title</label><input type="text" class="xt" placeholder="Software Developer"/></div>
+        <div class="fld"><label>Company</label><input type="text" class="xc" placeholder="Company Name"/></div>
+      </div>
+      <div class="fld"><label>Duration</label><input type="text" class="xd" placeholder="Jan 2022 – Present"/></div>
+      <div class="fld"><label>Description</label><textarea class="xdesc" rows="3" placeholder="Key responsibilities and achievements…"></textarea></div>
+    </div>`);
+  rebind(); render();
+};
+window.addEdu=function(){
+  di++;
+  const i=di;
+  document.getElementById('eduList').insertAdjacentHTML('beforeend',`
+    <div class="card" data-edu="${i}">
+      <div class="ctop"><span class="clbl">EDUCATION</span><button class="brm" onclick="delCard('edu','${i}')">Remove</button></div>
+      <div class="r2">
+        <div class="fld"><label>Degree / Qualification</label><input type="text" class="dd" placeholder="B.Sc. Computer Science"/></div>
+        <div class="fld"><label>Year</label><input type="text" class="dy" placeholder="2016 – 2020"/></div>
+      </div>
+      <div class="fld"><label>Institution</label><input type="text" class="ds" placeholder="University Name"/></div>
+    </div>`);
+  rebind(); render();
+};
+window.addSkl=function(){
+  si++;
+  const i=si;
+  document.getElementById('sklList').insertAdjacentHTML('beforeend',`
+    <div class="card" data-skl="${i}" style="padding:8px 12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <input type="text" class="sn" placeholder="e.g. JavaScript, Figma, Python…" style="flex:1"/>
+        <button class="brm" onclick="delCard('skl','${i}')">✕</button>
+      </div>
+    </div>`);
+  rebind(); render();
+};
+window.delCard=function(t,i){
+  const el=document.querySelector(`[data-${t}="${i}"]`);
+  if(el) el.remove(); render();
+};
+
+/* ══ BIND ══ */
+function rebind(){
+  document.querySelectorAll('#sidebar input,#sidebar textarea').forEach(el=>{
+    el.removeEventListener('input',render);
+    el.addEventListener('input',render);
+  });
+}
+
+/* ══ HELPERS ══ */
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function v(id){ const el=document.getElementById(id); return el?el.value.trim():''; }
+
+/* ══ COLLECT DATA ══ */
+function getData(){
+  const name   = v('fName')  || 'Your Name';
+  const title  = v('fTitle') || 'Your Job Title';
+  const email  = v('fEmail');
+  const phone  = v('fPhone');
+  const loc    = v('fLoc');
+  const web    = v('fWeb');
+  const sum    = v('fSum');
+
+  let expArr=[];
+  document.querySelectorAll('[data-exp]').forEach(c=>{
+    const t=c.querySelector('.xt').value.trim();
+    const co=c.querySelector('.xc').value.trim();
+    const d=c.querySelector('.xd').value.trim();
+    const desc=c.querySelector('.xdesc').value.trim();
+    if(t||co) expArr.push({t,co,d,desc});
   });
 
-  window.removePhoto = function (e) {
-    e.stopPropagation();
-    photoSrc = null;
-    document.getElementById('photoEmoji').style.display = '';
-    const t = document.getElementById('photoThumb'); t.src = ''; t.style.display = 'none';
-    document.getElementById('photoRemove').style.display = 'none';
-    document.getElementById('cvPhotoEmoji').style.display = '';
-    const ci = document.getElementById('cvPhotoImg'); ci.src = ''; ci.style.display = 'none';
-    document.getElementById('photoFile').value = '';
-  };
+  let eduArr=[];
+  document.querySelectorAll('[data-edu]').forEach(c=>{
+    const deg=c.querySelector('.dd').value.trim();
+    const sch=c.querySelector('.ds').value.trim();
+    const yr =c.querySelector('.dy').value.trim();
+    if(deg||sch) eduArr.push({deg,sch,yr});
+  });
 
-  /* ─────────────── ADD ENTRIES ─────────────── */
-  window.addExp = function () {
-    expIdx++;
-    const id = expIdx;
-    document.getElementById('exp-list').insertAdjacentHTML('beforeend', `
-      <div class="card" data-exp="${id}">
-        <div class="card-head">
-          <span class="card-tag">EXPERIENCE #${document.querySelectorAll('[data-exp]').length}</span>
-          <button class="btn-remove" onclick="removeCard('exp','${id}')">Remove</button>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Job Title</label>
-            <input type="text" class="ex-title" placeholder="Software Developer" /></div>
-          <div class="field"><label>Company</label>
-            <input type="text" class="ex-company" placeholder="Acme Corp" /></div>
-        </div>
-        <div class="field"><label>Duration</label>
-          <input type="text" class="ex-duration" placeholder="Jan 2022 – Present" /></div>
-        <div class="field"><label>Description</label>
-          <textarea class="ex-desc" rows="3" placeholder="Describe your responsibilities and key achievements..."></textarea></div>
-      </div>`);
-    bindAll();
-    render();
-  };
+  let sklArr=[];
+  document.querySelectorAll('[data-skl] .sn').forEach(inp=>{
+    const s=inp.value.trim(); if(s) sklArr.push(s);
+  });
 
-  window.addEdu = function () {
-    eduIdx++;
-    const id = eduIdx;
-    document.getElementById('edu-list').insertAdjacentHTML('beforeend', `
-      <div class="card" data-edu="${id}">
-        <div class="card-head">
-          <span class="card-tag">EDUCATION #${document.querySelectorAll('[data-edu]').length}</span>
-          <button class="btn-remove" onclick="removeCard('edu','${id}')">Remove</button>
-        </div>
-        <div class="row2">
-          <div class="field"><label>Degree / Qualification</label>
-            <input type="text" class="ed-degree" placeholder="B.Sc. Computer Science" /></div>
-          <div class="field"><label>Year</label>
-            <input type="text" class="ed-year" placeholder="2016 – 2020" /></div>
-        </div>
-        <div class="field"><label>Institution</label>
-          <input type="text" class="ed-school" placeholder="University Name" /></div>
-      </div>`);
-    bindAll();
-    render();
-  };
+  return {name,title,email,phone,loc,web,sum,expArr,eduArr,sklArr};
+}
 
-  window.addSkill = function () {
-    skillIdx++;
-    const id = skillIdx;
-    document.getElementById('skill-list').insertAdjacentHTML('beforeend', `
-      <div class="card" data-skill="${id}" style="padding:8px 12px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="text" class="sk-name" placeholder="e.g. JavaScript, Figma, Python…" style="flex:1" />
-          <button class="btn-remove" onclick="removeCard('skill','${id}')">✕</button>
+/* ══ RENDER PREVIEW ══ */
+function render(){
+  const d=getData();
+  document.getElementById('cvName').textContent  = d.name;
+  document.getElementById('cvJobT').textContent  = d.title;
+  document.getElementById('cvCont').innerHTML    = [d.email,d.phone,d.loc,d.web].filter(Boolean)
+    .map(c=>`<span class="cvc">${esc(c)}</span>`).join('');
+
+  const pi=document.getElementById('cvPI'), pe=document.getElementById('cvPE');
+  if(photoSrc){pe.style.display='none';pi.src=photoSrc;pi.style.display='block';}
+  else{pe.style.display='';pi.style.display='none';}
+
+  const ss=document.getElementById('secSum');
+  if(d.sum){ss.style.display='';document.getElementById('cvSumTxt').textContent=d.sum;}
+  else ss.style.display='none';
+
+  let expH='';
+  d.expArr.forEach(e=>{ expH+=`
+    <div class="cv-ei">
+      <div class="cv-er"><div class="cv-et">${esc(e.t||'—')}</div>${e.d?`<div class="cv-ed">${esc(e.d)}</div>`:''}</div>
+      ${e.co?`<div class="cv-ec">${esc(e.co)}</div>`:''}
+      ${e.desc?`<div class="cv-edesc">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
+    </div>`; });
+  const se=document.getElementById('secExp');
+  if(expH){se.style.display='';document.getElementById('cvExpItems').innerHTML=expH;}
+  else se.style.display='none';
+
+  let eduH='';
+  d.eduArr.forEach(e=>{ eduH+=`
+    <div class="cv-edi">
+      <div><div class="cv-edeg">${esc(e.deg||'—')}</div>${e.sch?`<div class="cv-esch">${esc(e.sch)}</div>`:''}</div>
+      ${e.yr?`<div class="cv-eyr">${esc(e.yr)}</div>`:''}
+    </div>`; });
+  const sd=document.getElementById('secEdu');
+  if(eduH){sd.style.display='';document.getElementById('cvEduItems').innerHTML=eduH;}
+  else sd.style.display='none';
+
+  let sklH='';
+  d.sklArr.forEach(s=>{ sklH+=`<div class="cv-sk">${esc(s)}</div>`; });
+  const sk=document.getElementById('secSkl');
+  if(sklH){sk.style.display='';document.getElementById('cvSklItems').innerHTML=sklH;}
+  else sk.style.display='none';
+}
+
+/* ══ BUILD SELF-CONTAINED PDF HTML (all inline styles) ══ */
+function buildPDFHTML(d){
+  const F_BODY = "'Outfit',Arial,sans-serif";
+  const F_DISP = "'Cormorant Garamond',Georgia,serif";
+  const F_MONO = "'JetBrains Mono','Courier New',monospace";
+  const INK='#111111', INK2='#505050', INK3='#909090';
+  const PAPER='#faf8f5', WARM='#f2ede6', LINE='#e0dbd4';
+  const ACC='#c0622e', ACC2='#e07a4a';
+
+  const photoHTML = photoSrc
+    ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:50%;" />`
+    : `<span style="font-size:28px;color:#888;">👤</span>`;
+
+  const contactsHTML = [d.email,d.phone,d.loc,d.web].filter(Boolean).map(c=>`
+    <span style="font-family:${F_MONO};font-size:10.5px;color:rgba(255,255,255,.5);display:inline-flex;align-items:center;gap:5px;margin-right:18px;margin-bottom:4px;">
+      <span style="width:4px;height:4px;background:${ACC2};border-radius:50%;display:inline-block;flex-shrink:0;"></span>${esc(c)}
+    </span>`).join('');
+
+  let expHTML='';
+  d.expArr.forEach(e=>{ expHTML+=`
+    <div style="padding-bottom:16px;margin-bottom:16px;border-bottom:1px solid ${LINE};">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+        <div style="font-family:${F_DISP};font-size:16px;font-weight:700;color:${INK};line-height:1.2;">${esc(e.t||'—')}</div>
+        ${e.d?`<div style="font-family:${F_MONO};font-size:10px;color:${INK2};white-space:nowrap;background:${WARM};padding:2px 8px;border-radius:3px;flex-shrink:0;margin-top:3px;">${esc(e.d)}</div>`:''}
+      </div>
+      ${e.co?`<div style="font-size:12px;color:${ACC};font-weight:500;margin:4px 0 6px;">${esc(e.co)}</div>`:''}
+      ${e.desc?`<div style="font-size:12.5px;line-height:1.7;color:${INK2};">${esc(e.desc).replace(/\n/g,'<br>')}</div>`:''}
+    </div>`; });
+  if(expHTML) expHTML=`<div>${expHTML}</div>`;
+
+  let eduHTML='';
+  d.eduArr.forEach(e=>{ eduHTML+=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;padding:10px 0;border-bottom:1px solid ${LINE};">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:${INK};line-height:1.3;">${esc(e.deg||'—')}</div>
+        ${e.sch?`<div style="font-size:12px;color:${INK2};margin-top:2px;">${esc(e.sch)}</div>`:''}
+      </div>
+      ${e.yr?`<div style="font-family:${F_MONO};font-size:10px;color:${INK3};white-space:nowrap;flex-shrink:0;margin-top:3px;">${esc(e.yr)}</div>`:''}
+    </div>`; });
+  if(eduHTML) eduHTML=`<div>${eduHTML}</div>`;
+
+  let sklHTML='';
+  d.sklArr.forEach(s=>{ sklHTML+=`
+    <span style="font-size:12px;color:${INK};background:${WARM};border:1px solid ${LINE};padding:4px 14px;border-radius:20px;display:inline-flex;align-items:center;gap:6px;margin:0 8px 8px 0;">
+      <span style="width:5px;height:5px;background:${ACC};border-radius:50%;display:inline-block;flex-shrink:0;"></span>${esc(s)}
+    </span>`; });
+
+  function section(title, content){
+    if(!content) return '';
+    return `
+      <div style="margin-bottom:24px;">
+        <div style="font-family:${F_MONO};font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC};display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+          ${title}
+          <span style="flex:1;height:1px;background:${LINE};display:block;"></span>
         </div>
-      </div>`);
-    bindAll();
-    render();
-  };
+        ${content}
+      </div>`;
+  }
 
-  window.removeCard = function (type, id) {
-    const el = document.querySelector(`[data-${type}="${id}"]`);
-    if (el) el.remove();
-    render();
-  };
+  return `
+  <div style="width:794px;background:${PAPER};font-family:${F_BODY};color:${INK};font-size:14px;">
+    <!-- HEADER -->
+    <div style="background:${INK};padding:36px 44px;display:flex;align-items:center;gap:24px;position:relative;overflow:hidden;">
+      <!-- photo -->
+      <div style="width:86px;height:86px;border-radius:50%;border:3px solid ${ACC2};overflow:hidden;flex-shrink:0;background:#252218;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;">
+        ${photoHTML}
+      </div>
+      <!-- info -->
+      <div style="flex:1;position:relative;z-index:1;">
+        <div style="font-family:${F_DISP};font-size:34px;font-weight:700;color:#fff;letter-spacing:-.5px;line-height:1.1;">${esc(d.name)}</div>
+        <div style="font-family:${F_MONO};font-size:11px;letter-spacing:2.5px;text-transform:uppercase;color:${ACC2};margin-top:6px;">${esc(d.title)}</div>
+        <div style="display:flex;flex-wrap:wrap;margin-top:14px;">${contactsHTML}</div>
+      </div>
+    </div>
+    <!-- BODY -->
+    <div style="padding:28px 44px 38px;">
+      ${section('Profile', d.sum ? `<p style="font-size:13px;line-height:1.8;color:#3a3a3a;">${esc(d.sum)}</p>` : '')}
+      ${section('Experience', expHTML)}
+      ${section('Education', eduHTML)}
+      ${section('Skills', sklHTML ? `<div style="display:flex;flex-wrap:wrap;">${sklHTML}</div>` : '')}
+    </div>
+  </div>`;
+}
 
-  /* ─────────────── BIND ─────────────── */
-  function bindAll () {
-    document.querySelectorAll('#sidebar input, #sidebar textarea').forEach(el => {
-      el.removeEventListener('input', render);
-      el.addEventListener('input', render);
+/* ══ DOWNLOAD PDF ══ */
+window.downloadPDF=async function(){
+  const btn=document.getElementById('btnDl');
+  btn.disabled=true; btn.innerHTML='⏳ &nbsp;Generating…';
+  showToast('Building your PDF…');
+
+  try{
+    const d = getData();
+    const html = buildPDFHTML(d);
+
+    /* Inject into visible off-screen mount */
+    const mount = document.getElementById('pdfMount');
+    mount.innerHTML = html;
+
+    /* Wait for fonts + layout */
+    await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+    await new Promise(r=>setTimeout(r,600));
+
+    const target = mount.firstElementChild;
+
+    const canvas = await html2canvas(target, {
+      scale: 2.5,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#faf8f5',
+      logging: false,
+      width: 794,
+      height: target.scrollHeight,
+      windowWidth: 794,
+      windowHeight: target.scrollHeight,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+      x: 0,
+      y: 0
     });
-  }
 
-  /* ─────────────── RENDER ─────────────── */
-  function esc (str) {
-    return str
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+    mount.innerHTML = '';
 
-  function val (id) {
-    const el = document.getElementById(id);
-    return el ? el.value.trim() : '';
-  }
+    const {jsPDF} = window.jspdf;
+    const PW=595.28, PH=841.89;
+    const fullH = (canvas.height / canvas.width) * PW;
+    const pdf = new jsPDF({orientation:'portrait',unit:'pt',format:'a4',compress:true});
 
-  function show (id, visible) {
-    document.getElementById(id).style.display = visible ? '' : 'none';
-  }
-
-  function render () {
-    const name     = val('f-name')     || 'Your Name';
-    const title    = val('f-title')    || 'Your Job Title';
-    const email    = val('f-email');
-    const phone    = val('f-phone');
-    const location = val('f-location');
-    const web      = val('f-web');
-    const summary  = val('f-summary');
-
-    document.getElementById('cv-name').textContent  = name;
-    document.getElementById('cv-title').textContent = title;
-
-    /* contacts */
-    const contacts = [email, phone, location, web].filter(Boolean);
-    document.getElementById('cv-contacts').innerHTML = contacts
-      .map(c => `<span class="cv-contact">${esc(c)}</span>`).join('');
-
-    /* summary */
-    if (summary) {
-      show('sec-summary', true);
-      document.getElementById('cv-summary-text').textContent = summary;
+    if(fullH <= PH){
+      pdf.addImage(canvas.toDataURL('image/jpeg',0.95),'JPEG',0,0,PW,fullH);
     } else {
-      show('sec-summary', false);
-    }
-
-    /* experience */
-    let expHTML = '';
-    document.querySelectorAll('[data-exp]').forEach(card => {
-      const t    = card.querySelector('.ex-title').value.trim();
-      const co   = card.querySelector('.ex-company').value.trim();
-      const dur  = card.querySelector('.ex-duration').value.trim();
-      const desc = card.querySelector('.ex-desc').value.trim();
-      if (!t && !co) return;
-      expHTML += `
-        <div class="cv-exp-item">
-          <div class="cv-exp-row1">
-            <div class="cv-exp-title-text">${esc(t || '—')}</div>
-            ${dur ? `<div class="cv-exp-dates">${esc(dur)}</div>` : ''}
-          </div>
-          ${co   ? `<div class="cv-exp-company">${esc(co)}</div>` : ''}
-          ${desc ? `<div class="cv-exp-desc">${esc(desc).replace(/\n/g, '<br>')}</div>` : ''}
-        </div>`;
-    });
-    show('sec-exp', !!expHTML);
-    document.getElementById('cv-exp-items').innerHTML = expHTML;
-
-    /* education */
-    let eduHTML = '';
-    document.querySelectorAll('[data-edu]').forEach(card => {
-      const deg    = card.querySelector('.ed-degree').value.trim();
-      const school = card.querySelector('.ed-school').value.trim();
-      const year   = card.querySelector('.ed-year').value.trim();
-      if (!deg && !school) return;
-      eduHTML += `
-        <div class="cv-edu-item">
-          <div>
-            <div class="cv-edu-degree">${esc(deg || '—')}</div>
-            ${school ? `<div class="cv-edu-school">${esc(school)}</div>` : ''}
-          </div>
-          ${year ? `<div class="cv-edu-year">${esc(year)}</div>` : ''}
-        </div>`;
-    });
-    show('sec-edu', !!eduHTML);
-    document.getElementById('cv-edu-items').innerHTML = eduHTML;
-
-    /* skills */
-    let skillHTML = '';
-    document.querySelectorAll('[data-skill] .sk-name').forEach(inp => {
-      const s = inp.value.trim();
-      if (s) skillHTML += `<div class="cv-skill">${esc(s)}</div>`;
-    });
-    show('sec-skills', !!skillHTML);
-    document.getElementById('cv-skill-items').innerHTML = skillHTML;
-  }
-
-  /* ─────────────── PDF DOWNLOAD ─────────────── */
-  window.downloadPDF = async function () {
-    const btn = document.getElementById('btnDl');
-    btn.disabled = true;
-    btn.textContent = '⏳  Generating PDF…';
-    toast('Preparing your CV…');
-
-    try {
-      const doc = document.getElementById('cvDoc');
-
-      const canvas = await html2canvas(doc, {
-        scale: 3,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#faf8f5',
-        logging: false,
-        width:  doc.scrollWidth,
-        height: doc.scrollHeight,
-        windowWidth:  doc.scrollWidth,
-        windowHeight: doc.scrollHeight
-      });
-
-      const { jsPDF } = window.jspdf;
-
-      /* A4 dimensions in pt: 595.28 × 841.89 */
-      const PAGE_W = 595.28;
-      const PAGE_H = 841.89;
-
-      const imgW  = PAGE_W;
-      const imgH  = (canvas.height / canvas.width) * PAGE_W;
-
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'pt',
-        format: 'a4',
-        compress: true
-      });
-
-      if (imgH <= PAGE_H) {
-        /* Fits on one page */
-        pdf.addImage(
-          canvas.toDataURL('image/jpeg', 0.95),
-          'JPEG', 0, 0, imgW, imgH
-        );
-      } else {
-        /* Multi-page: slice canvas into A4-height chunks */
-        const ratio    = canvas.width / PAGE_W;   /* px per pt */
-        const slicePx  = Math.floor(PAGE_H * ratio);
-        let   yPx      = 0;
-
-        while (yPx < canvas.height) {
-          const remaining = canvas.height - yPx;
-          const chunkPx   = Math.min(slicePx, remaining);
-
-          const slice  = document.createElement('canvas');
-          slice.width  = canvas.width;
-          slice.height = chunkPx;
-          slice.getContext('2d').drawImage(
-            canvas,
-            0, yPx, canvas.width, chunkPx,
-            0,    0, canvas.width, chunkPx
-          );
-
-          const chunkH = (chunkPx / canvas.width) * PAGE_W;
-          if (yPx > 0) pdf.addPage();
-          pdf.addImage(
-            slice.toDataURL('image/jpeg', 0.95),
-            'JPEG', 0, 0, PAGE_W, chunkH
-          );
-
-          yPx += chunkPx;
-        }
+      const pxPerPt = canvas.width / PW;
+      const slicePx = Math.floor(PH * pxPerPt);
+      let yPx=0;
+      while(yPx < canvas.height){
+        const chunk = Math.min(slicePx, canvas.height-yPx);
+        const s=document.createElement('canvas');
+        s.width=canvas.width; s.height=chunk;
+        s.getContext('2d').drawImage(canvas, 0,yPx,canvas.width,chunk, 0,0,canvas.width,chunk);
+        const chH=(chunk/canvas.width)*PW;
+        if(yPx>0) pdf.addPage();
+        pdf.addImage(s.toDataURL('image/jpeg',0.95),'JPEG',0,0,PW,chH);
+        yPx+=chunk;
       }
-
-      const filename = (val('f-name') || 'CV').replace(/\s+/g, '_') + '_CV.pdf';
-      pdf.save(filename);
-      toast('PDF downloaded!');
-    } catch (err) {
-      console.error('PDF error:', err);
-      toast('Something went wrong. Please try again.');
-    } finally {
-      btn.disabled = false;
-      btn.innerHTML = '⬇ &nbsp;Download PDF';
     }
-  };
 
-  /* ─────────────── TOAST ─────────────── */
-  function toast (msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('show'), 2800);
+    const fname=(v('fName')||'CV').replace(/\s+/g,'_')+'_CV.pdf';
+    pdf.save(fname);
+    showToast('✓ PDF saved!');
+
+  } catch(err){
+    console.error(err);
+    showToast('Error — check console and retry.');
+  } finally{
+    btn.disabled=false; btn.innerHTML='⬇ &nbsp;Download PDF';
   }
+};
 
-  /* ─────────────── INIT ─────────────── */
-  bindAll();
-  render();
+/* ══ TOAST ══ */
+function showToast(m){
+  const el=document.getElementById('toast');
+  el.textContent=m; el.classList.add('on');
+  clearTimeout(el._t); el._t=setTimeout(()=>el.classList.remove('on'),2800);
+}
+
+/* ══ INIT ══ */
+rebind(); render();
 
 })();
 </script>
